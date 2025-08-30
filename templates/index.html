@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AltiCred - Agricultural Credit Scoring</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0a2540 0%, #1a5f7a 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Glitter effect elements */
+    .glitter {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.6);
+      opacity: 0;
+      z-index: 0;
+    }
+
+    @keyframes glitterFall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(5px);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0062cc 0%, #007BFF 100%);
+      color: white;
+      padding: 50px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+      transform: rotate(30deg);
+    }
+
+    .header h1 {
+      font-size: 3.5em;
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .header p {
+      font-size: 1.3em;
+      opacity: 0.9;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-container {
+      padding: 50px 40px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #2c3e50;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group label i {
+      margin-right: 10px;
+      color: #007BFF;
+    }
+
+    .form-group input, .form-group select {
+      padding: 16px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #007BFF;
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #0062cc 0%, #007BFF 100%);
+      color: white;
+      padding: 18px 45px;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 0 auto;
+      min-width: 240px;
+      box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(30deg);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 25px rgba(0, 123, 255, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .results {
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #eef3f8 100%);
+      border-left: 5px solid #007BFF;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .results.show {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .score-display {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .final-score {
+      font-size: 4em;
+      font-weight: 800;
+      color: #007BFF;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+      position: relative;
+      display: inline-block;
+    }
+
+    .final-score::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 10%;
+      width: 80%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #007BFF, transparent);
+      border-radius: 2px;
+    }
+
+    .interpretation {
+      font-size: 1.3em;
+      color: #2c3e50;
+      font-weight: 500;
+      margin-top: 15px;
+    }
+
+    .component-scores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .component-card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .component-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #007BFF, #00f2fe);
+    }
+
+    .component-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .component-card h4 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      text-transform: capitalize;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .component-card .score {
+      font-size: 2em;
+      font-weight: 700;
+      color: #007BFF;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 5px solid #721c24;
+      margin-top: 20px;
+      display: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007BFF;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .help-text {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 8px;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+    }
+
+    .help-text i {
+      margin-right: 8px;
+      font-size: 12px;
+      color: #007BFF;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 20px;
+      }
+
+      .header {
+        padding: 40px 25px;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+      }
+
+      .form-container {
+        padding: 40px 25px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+      
+      .final-score {
+        font-size: 3em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Glitter elements will be added by JavaScript -->
+  
+  <div class="container">
+    <div class="header">
+      <h1>ALTICRED</h1>
+      <p>Advanced Agricultural Credit Scoring System</p>
+    </div>
+    
+    <div class="form-container">
+      <form id="creditForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="land_size"><i class="fas fa-tractor"></i> Land Size (acres)</label>
+            <input type="number" id="land_size" name="land_size" step="0.1" min="0" placeholder="e.g., 5.0">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Total agricultural land owned in acres</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="in_cooperative"><i class="fas fa-handshake"></i> Member of Cooperative</label>
+            <select id="in_cooperative" name="in_cooperative">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+            <div class="help-text"><i class="fas fa-info-circle"></i> Are you a member of any agricultural cooperative?</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="linked_to_exporter"><i class="fas fa-globe"></i> Linked to Exporter</label>
+            <select id="linked_to_exporter" name="linked_to_exporter">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+            <div class="help-text"><i class="fas fa-info-circle"></i> Do you have direct contracts with exporters?</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="agritech_usage"><i class="fas fa-microchip"></i> Uses Agritech Tools</label>
+            <select id="agritech_usage" name="agritech_usage">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+            <div class="help-text"><i class="fas fa-info-circle"></i> Do you use modern agricultural technology?</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="new_crop_adoption"><i class="fas fa-seedling"></i> Recently Adopted New Crop</label>
+            <select id="new_crop_adoption" name="new_crop_adoption">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+            <div class="help-text"><i class="fas fa-info-circle"></i> Have you tried new crop varieties recently?</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="pm_kisan_installments"><i class="fas fa-rupee-sign"></i> PM-Kisan Installments Received</label>
+            <input type="number" id="pm_kisan_installments" name="pm_kisan_installments" min="0" max="20" placeholder="e.g., 6">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Number of PM-Kisan scheme installments received</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="crop_diversity"><i class="fas fa-leaf"></i> Crop Diversity</label>
+            <input type="number" id="crop_diversity" name="crop_diversity" min="1" max="20" placeholder="e.g., 3">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Number of different crops you grow</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="digital_engagement"><i class="fas fa-mobile-alt"></i> Digital Engagement Score</label>
+            <input type="number" id="digital_engagement" name="digital_engagement" step="0.1" min="0" max="1" placeholder="e.g., 0.7">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Your digital platform usage (0.0 to 1.0)</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="market_access"><i class="fas fa-store"></i> Market Access Score</label>
+            <input type="number" id="market_access" name="market_access" step="0.1" min="0" max="1" placeholder="e.g., 0.6">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Your access to markets (0.0 to 1.0)</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="budgeting_habit"><i class="fas fa-chart-line"></i> Budgeting Habit Score</label>
+            <input type="number" id="budgeting_habit" name="budgeting_habit" step="0.1" min="0" max="1" placeholder="e.g., 0.8">
+            <div class="help-text"><i class="fas fa-info-circle"></i> Your financial planning skills (0.0 to 1.0)</div>
+          </div>
+        </div>
+        
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fas fa-calculator"></i> Calculate Credit Score
+        </button>
+        
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Calculating your credit score...</p>
+        </div>
+        
+        <div class="results" id="results">
+          <div class="score-display">
+            <div class="final-score" id="finalScore">0.000</div>
+            <div class="interpretation" id="interpretation">No score calculated yet</div>
+          </div>
+          
+          <div class="component-scores" id="componentScores">
+            <!-- Component scores will be populated here -->
+          </div>
+        </div>
+        
+        <div class="error" id="error">
+          <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Create glitter effect
+    function createGlitter() {
+      const body = document.querySelector('body');
+      const glitterCount = 30;
+      
+      for (let i = 0; i < glitterCount; i++) {
+        const glitter = document.createElement('div');
+        glitter.classList.add('glitter');
+        
+        // Random position
+        const left = Math.random() * 100;
+        glitter.style.left = `${left}vw`;
+        
+        // Random size
+        const size = Math.random() * 4 + 2;
+        glitter.style.width = `${size}px`;
+        glitter.style.height = `${size}px`;
+        
+        // Random delay and duration
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 5 + 5;
+        
+        glitter.style.animation = `glitterFall ${duration}s linear ${delay}s infinite`;
+        
+        body.appendChild(glitter);
+      }
+    }
+    
+    // Initialize glitter effect
+    createGlitter();
+
+    document.getElementById('creditForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const loading = document.getElementById('loading');
+      const results = document.getElementById('results');
+      const error = document.getElementById('error');
+      
+      // Show loading
+      submitBtn.disabled = true;
+      loading.classList.add('show');
+      results.classList.remove('show');
+      error.classList.remove('show');
+      
+      try {
+        const formData = new FormData(this);
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Display results
+          document.getElementById('finalScore').textContent = data.final_score.toFixed(3);
+          document.getElementById('interpretation').textContent = data.interpretation;
+          
+          // Display component scores
+          const componentScoresDiv = document.getElementById('componentScores');
+          componentScoresDiv.innerHTML = '';
+          
+          for (const [component, score] of Object.entries(data.component_scores)) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'component-card';
+            cardDiv.innerHTML = `
+              <h4>${component.replace(/_/g, ' ')}</h4>
+              <div class="score">${score.toFixed(3)}</div>
+            `;
+            componentScoresDiv.appendChild(cardDiv);
+          }
+          
+          results.classList.add('show');
+        } else {
+          // Show error
+          document.getElementById('errorMessage').textContent = data.error;
+          error.classList.add('show');
+        }
+      } catch (err) {
+        // Show error
+        document.getElementById('errorMessage').textContent = 'Network error: ' + err.message;
+        error.classList.add('show');
+      } finally {
+        // Hide loading
+        loading.classList.remove('show');
+        submitBtn.disabled = false;
+      }
+    });
+    
+    // Add form validation
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', function() {
+        const min = parseFloat(this.min);
+        const max = parseFloat(this.max);
+        const value = parseFloat(this.value);
+        
+        if (!isNaN(min) && value < min) {
+          this.value = min;
+        }
+        if (!isNaN(max) && value > max) {
+          this.value = max;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

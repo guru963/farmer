@@ -222,9 +222,8 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    # Initialize models
+    port = int(os.environ.get("PORT", 5000))  # use Render's assigned port, fallback to 5000 locally
     if not load_models():
         print("Warning: Models not loaded. Please ensure models/ directory exists with trained models.")
         print("Run train_alticred.py first to generate the models.")
-    
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=port)

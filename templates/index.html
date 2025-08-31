@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AltiCred - Agricultural Credit Scoring</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
   <style>
     * {
       margin: 0;
@@ -405,6 +408,11 @@
     </div>
     
     <div class="form-container">
+      <div class="form-group">
+        <label for="pdfUpload"><i class="fas fa-file-pdf"></i> Upload PDF</label>
+        <input type="file" id="pdfUpload" accept="application/pdf">
+         <div class="help-text"><i class="fas fa-info-circle"></i> Upload PDF to auto-fill details</div>
+      </div>
       <form id="creditForm">
         <div class="form-grid">
           <div class="form-group">
@@ -508,6 +516,48 @@
   </div>
 
   <script>
+    document.getElementById('pdfUpload').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const typedArray = new Uint8Array(this.result);
+        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+        let textContent = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const text = await page.getTextContent();
+          text.items.forEach(item => textContent += item.str + " ");
+        }
+
+        fillForm(textContent);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function extract(label, text) {
+      // normalize label (handles PM-Kisan, PM Kisan etc.)
+      const normLabel = label.replace(/[-–—]/g, "[ -–—]?");
+      const regex = new RegExp(normLabel + "\\s*[:\\-]\\s*([0-9\\.]+|Yes|No)", "i");
+      const match = text.match(regex);
+      return match ? match[1].trim() : "";
+    }
+
+    function fillForm(text) {
+      document.getElementById("land_size").value = extract("Land Size", text);
+      document.getElementById("in_cooperative").value = extract("Member of Cooperative", text) === "Yes" ? "1" : "0";
+      document.getElementById("linked_to_exporter").value = extract("Linked to Exporter", text) === "Yes" ? "1" : "0";
+      document.getElementById("agritech_usage").value = extract("Uses Agritech Tools", text) === "Yes" ? "1" : "0";
+      document.getElementById("new_crop_adoption").value = extract("Recently Adopted New Crop", text) === "Yes" ? "1" : "0";
+      document.getElementById("pm_kisan_installments").value = extract("PM Kisan Installments", text); // works for PM-Kisan or PM Kisan
+      document.getElementById("crop_diversity").value = extract("Crop Diversity", text);
+      document.getElementById("digital_engagement").value = extract("Digital Engagement Score", text);
+      document.getElementById("market_access").value = extract("Market Access Score", text);
+      document.getElementById("budgeting_habit").value = extract("Budgeting Habit Score", text);
+    }
+    // ========= End PDF Parsing =========
     // Create glitter effect
     function createGlitter() {
       const body = document.querySelector('body');

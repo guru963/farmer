@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AltiCred Universal Score Calculator</title>
+  <style>
+        :root {
+            --bg-color: #fafbfc;
+            --primary-accent: #3b82f6;
+            --secondary-accent: #1e40af;
+            --accent-hover: #2563eb;
+            --success-accent: #10b981;
+            --success-hover: #059669;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(59, 130, 246, 0.1);
+            --card-hover-bg: rgba(255, 255, 255, 0.95);
+            --input-bg: rgba(248, 250, 252, 0.9);
+            --input-border: rgba(59, 130, 246, 0.15);
+            --input-focus-bg: rgba(255, 255, 255, 0.95);
+            --shadow-soft: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(59, 130, 246, 0.08);
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-subtle: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+            --error-color: #dc2626;
+            --error-bg: rgba(220, 38, 38, 0.1);
+            --error-border: rgba(220, 38, 38, 0.2);
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background: var(--gradient-subtle);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Subtle pattern overlay for premium feel */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(29, 78, 216, 0.015) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        header {
+            background: var(--gradient-primary);
+            width: 100%;
+            max-width: 650px;
+            padding: 24px 0;
+            text-align: center;
+            box-shadow: 
+                0 8px 16px var(--shadow-medium),
+                0 4px 8px var(--shadow-soft);
+            position: relative;
+            z-index: 10;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px var(--shadow-soft),
+                0 8px 16px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            width: 100%;
+            max-width: 650px;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+        }
+
+        .container:hover {
+            background: var(--card-hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 24px 48px var(--shadow-soft),
+                0 12px 20px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        h2 {
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 20px;
+        }
+
+        h2.form-title {
+            border-bottom: 2px solid var(--primary-accent);
+            padding-bottom: 12px;
+            margin-top: 30px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        h2.form-title:first-child {
+            margin-top: 0;
+        }
+
+        h2.form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1em;
+            letter-spacing: -0.01em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            box-sizing: border-box;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: var(--font-family);
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px var(--shadow-soft);
+        }
+
+        input:focus, select:focus {
+            background: var(--input-focus-bg);
+            border-color: var(--primary-accent);
+            box-shadow: 
+                0 0 0 3px rgba(59, 130, 246, 0.1),
+                0 4px 8px var(--shadow-soft);
+            transform: translateY(-1px);
+        }
+
+        input:hover, select:hover {
+            border-color: rgba(59, 130, 246, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.01em;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 16px rgba(59, 130, 246, 0.2),
+                0 4px 8px rgba(59, 130, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 24px rgba(59, 130, 246, 0.25),
+                0 6px 12px rgba(59, 130, 246, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 6px 12px rgba(59, 130, 246, 0.2),
+                0 3px 6px rgba(59, 130, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 
+                0 8px 16px rgba(59, 130, 246, 0.2),
+                0 4px 8px rgba(59, 130, 246, 0.1),
+                0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #result-container {
+            margin-top: 32px;
+            padding: 32px;
+            border-radius: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-align: center;
+            box-shadow: 
+                0 20px 40px var(--shadow-soft),
+                0 8px 16px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        #result {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-success);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin: 0;
+            text-shadow: none;
+        }
+
+        #error {
+            margin-top: 20px;
+            padding: 16px 20px;
+            color: var(--error-color);
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Enhanced responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            header {
+                max-width: calc(100% - 32px);
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 32px 24px;
+                max-width: calc(100% - 32px);
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            input, select {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            button {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            #result {
+                font-size: 1.5rem;
+            }
+
+            #result-container {
+                padding: 24px;
+                margin-top: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.6rem;
+            }
+
+            .container {
+                padding: 24px 20px;
+            }
+
+            input, select {
+                padding: 10px 12px;
+            }
+
+            button {
+                padding: 12px 16px;
+            }
+
+            #result {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            button::before {
+                transition: none;
+            }
+
+            button:hover::before {
+                display: none;
+            }
+
+            #result-container {
+                animation: none;
+            }
+
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --card-border: rgba(59, 130, 246, 0.3);
+                --input-border: rgba(59, 130, 246, 0.3);
+                --error-border: rgba(220, 38, 38, 0.4);
+            }
+
+            input, select {
+                border-width: 2px;
+            }
+
+            input:focus, select:focus {
+                border-width: 2px;
+                box-shadow: 
+                    0 0 0 3px rgba(59, 130, 246, 0.3),
+                    0 4px 8px var(--shadow-soft);
+            }
+
+            #error {
+                border-width: 2px;
+            }
+        }
+
+        /* Focus indicators for keyboard navigation */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--primary-accent);
+            outline-offset: 2px;
+        }
+
+        /* Enhanced form styling */
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Loading state for button */
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            background: var(--gradient-primary);
+        }
+        #pdf-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #007bff; /* Blue */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+/* Remove ugly default file input style */
+#pdf-upload::-webkit-file-upload-button {
+  visibility: hidden;
+}
+#pdf-upload::before {
+  content: "Upload PDF";
+  display: inline-block;
+  color: #fff;
+  background-color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+#pdf-upload:hover::before {
+  background-color: #0056b3; /* darker blue */
+}
+#pdf-upload:active::before {
+  background-color: #004494;
+  transform: scale(0.98);
+}
+
+    </style>
+
+</head>
+<body>
+  <header>
+    <h1> AltiCred Universal Score Calculator </h1>
+  </header>
+
+  <div class="container">
+    <!-- PDF Upload -->
+    <div class="form-group">
+      <label>Upload PDF:</label>
+      <input type="file" id="pdf-upload" accept="application/pdf" />
+    </div>
+
+    <form id="score-form">
+      <div id="salaried-fields" class="model-fields">
+        <h2 class="form-title">Salaried Employee Details</h2>
+        <div class="form-group"><label>Connections (comma-separated):</label><input name="connections" type="text"></div>
+        <div class="form-group"><label>Defaulter Neighbors:</label><input name="defaulter_neighbors" type="number"></div>
+        <div class="form-group"><label>Verified Neighbors:</label><input name="verified_neighbors" type="number"></div>
+        <div class="form-group"><label>Monthly Credit Bills:</label><input name="monthly_credit_bills" type="number" step="any"></div>
+        <div class="form-group"><label>BNPL Utilization Rate:</label><input name="bnpl_utilization_rate" type="number" step="any"></div>
+        <div class="form-group"><label>Mortgage Months Left:</label><input name="mortgage_months_left" type="number"></div>
+        <div class="form-group"><label>UPI Balances:</label><input name="upi_balances" type="text"></div>
+        <div class="form-group"><label>EMI Status Log:</label><input name="emi_status_log" type="text"></div>
+        <div class="form-group"><label>Income-Expense Ratio:</label><input name="income-expense ratio" type="number" step="any"></div>
+        
+        <div class="form-group">
+          <label>Owns Home (1=yes, 0=no):</label>
+          <input id="owns-home-input" name="owns_home" type="number" onchange="toggleRentField()">
+        </div>
+        
+        <div class="form-group" id="monthly-rent-group">
+          <label>Monthly Rent:</label>
+          <input id="monthly-rent-input" name="monthly_rent" type="number" step="any">
+        </div>
+
+        <div class="form-group"><label>Recovery Days:</label><input name="recovery_days" type="number"></div>
+        <div class="form-group"><label>Mortgage Status:</label><input name="mortgage_status" type="text"></div>
+        <div class="form-group"><label>User Posts:</label><input name="user_posts" type="text"></div>
+      </div>
+
+      <button type="submit">Calculate Score</button>
+    </form>
+
+    <div id="result-container" class="hidden">
+      <h2 id="result"></h2>
+    </div>
+    <p id="error"></p>
+  </div>
+
+  <!-- Load PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    function toggleRentField() {
+      const ownsHomeInput = document.getElementById('owns-home-input');
+      const monthlyRentGroup = document.getElementById('monthly-rent-group');
+      const monthlyRentInput = document.getElementById('monthly-rent-input');
+
+      if (ownsHomeInput.value === '1') {
+        monthlyRentGroup.classList.add('hidden');
+        monthlyRentInput.value = '0';
+      } else {
+        monthlyRentGroup.classList.remove('hidden');
+      }
+    }
+
+    // Parse PDF and autofill form
+    document.getElementById('pdf-upload').addEventListener('change', async function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const typedArray = new Uint8Array(this.result);
+        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+        let extractedText = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(" ");
+          extractedText += pageText + "\n";
+        }
+
+        console.log("Extracted PDF Text:", extractedText);
+
+        // --- Regex mapping with special handling for "User Posts" ---
+        const fieldLabels = [
+          "Connections",
+          "Defaulter Neighbors",
+          "Verified Neighbors",
+          "Monthly Credit Bills",
+          "BNPL Utilization Rate",
+          "Mortgage Months Left",
+          "UPI Balances",
+          "EMI Status Log",
+          "Income-Expense Ratio",
+          "Owns Home",
+          "Monthly Rent",
+          "Recovery Days",
+          "Mortgage Status",
+          "User Posts"
+        ];
+
+        const mappings = {};
+        fieldLabels.forEach((label) => {
+          let key = label.toLowerCase().replace(/\s+/g, "_");
+          if (label === "Income-Expense Ratio") key = "income-expense ratio";
+
+          if (label === "User Posts") {
+            // Special case: last field, capture everything till EOF
+            mappings[key] = new RegExp(`${label}:\\s*([\\s\\S]*)`, "i");
+          } else {
+            mappings[key] = new RegExp(
+              `${label}:\\s*(.*?)(?=\\s*(?:${fieldLabels.join("|")}):|$)`,
+              "i"
+            );
+          }
+        });
+
+        Object.keys(mappings).forEach(field => {
+          const match = extractedText.match(mappings[field]);
+          if (match) {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) input.value = match[1].trim();
+          }
+        });
+
+        toggleRentField(); // update rent visibility
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('score-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const resultDiv = document.getElementById('result');
+      const resultContainer = document.getElementById('result-container');
+      const errorDiv = document.getElementById('error');
+      resultContainer.classList.add('hidden');
+      errorDiv.textContent = '';
+
+      const formElements = document.getElementById('salaried-fields').getElementsByTagName('input');
+      let userData = {};
+      for (const element of formElements) {
+        if (element.name) {
+          userData[element.name] = element.value;
+        }
+      }
+
+      const payload = {
+        model_type: "salaried",
+        user_data: userData
+      };
+      
+      resultDiv.textContent = 'Calculating...';
+      resultContainer.classList.remove('hidden');
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          resultDiv.textContent = `AltiCred Score: ${result.alticred_score}`;
+        } else {
+          errorDiv.textContent = `Error: ${result.error}`;
+          resultContainer.classList.add('hidden');
+        }
+
+      } catch (error) {
+        errorDiv.textContent = 'A network error occurred. Please ensure the backend server is running.';
+        resultContainer.classList.add('hidden');
+      }
+    });
+
+    // Initialize rent field state on page load
+    toggleRentField();
+  </script>
+</body>
+</html>
